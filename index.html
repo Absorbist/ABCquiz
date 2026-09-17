@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+<title>ABC Hero Training • Тренировка героя</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/russo-one/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/nunito/index.css" />
+<style>
+  :root{
+    --ink:#16162e;
+    --paper:#fffdf6;
+    --blue:#1f6feb;
+    --blue-d:#0b3f9e;
+    --red:#ef2b3d;
+    --yellow:#ffd60a;
+    --yellow-soft:#fff2b0;
+    --green:#12a150;
+    --green-soft:#d7f7e3;
+    --red-soft:#ffe0e3;
+    --amber:#f59e0b;
+    --amber-soft:#fff0d1;
+    --purple:#7c3aed;
+    --grey:#8b8ba3;
+    --shadow:0 6px 0 rgba(22,22,46,.18);
+    --r:22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Nunito","Segoe UI",system-ui,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,214,10,.28) 0 14px, transparent 15px),
+      radial-gradient(circle at 88% 12%, rgba(239,43,61,.18) 0 18px, transparent 19px),
+      radial-gradient(circle at 75% 82%, rgba(31,111,235,.18) 0 16px, transparent 17px),
+      linear-gradient(180deg,#cfe6ff 0%,#eaf4ff 42%,#fff6d8 100%);
+    background-attachment:fixed;
+    -webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:radial-gradient(rgba(255,255,255,.55) 2px, transparent 2.5px);
+    background-size:26px 26px;opacity:.5;
+  }
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+  .wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:14px 14px 40px;}
+  header.topbar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:10px 16px;margin-bottom:14px;
+  }
+  .logo{display:flex;align-items:center;gap:10px;min-width:0;}
+  .logo-badge{
+    width:52px;height:52px;flex:0 0 52px;border-radius:50%;
+    background:conic-gradient(from 0deg,var(--yellow) 0 20deg,var(--red) 20deg 40deg,var(--yellow) 40deg 60deg,var(--blue) 60deg 80deg,var(--yellow) 80deg 100deg,var(--red) 100deg 120deg,var(--yellow) 120deg 140deg,var(--blue) 140deg 160deg,var(--yellow) 160deg 180deg,var(--red) 180deg 200deg,var(--yellow) 200deg 220deg,var(--blue) 220deg 240deg,var(--yellow) 240deg 260deg,var(--red) 260deg 280deg,var(--yellow) 280deg 300deg,var(--blue) 300deg 320deg,var(--yellow) 320deg 340deg,var(--red) 340deg 360deg);
+    border:4px solid var(--ink);display:grid;place-items:center;font-size:24px;
+    box-shadow:inset 0 0 0 6px #fff;
+  }
+  .logo h1{font-family:"Russo One",sans-serif;font-size:clamp(18px,2.4vw,30px);margin:0;line-height:1.05;letter-spacing:.5px;}
+  .logo .ru{font-size:clamp(11px,1.3vw,15px);color:var(--blue-d);font-weight:700;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .counter-chip{
+    background:var(--ink);color:#fff;border-radius:999px;padding:8px 16px;font-weight:800;
+    font-size:clamp(13px,1.5vw,17px);text-align:center;line-height:1.2;
+  }
+  .counter-chip small{display:block;font-weight:600;opacity:.75;font-size:.75em;}
+  .icon-btn{
+    width:52px;height:52px;border-radius:16px;border:3px solid var(--ink);background:#fff;
+    font-size:24px;cursor:pointer;box-shadow:0 4px 0 rgba(22,22,46,.25);display:grid;place-items:center;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .icon-btn:hover{background:var(--yellow-soft);transform:translateY(-2px);}
+  .icon-btn:active{transform:translateY(2px);box-shadow:none;}
+  .icon-btn.warn{background:var(--amber-soft);animation:pulseWarn 1.2s ease 3;}
+  .icon-btn.good{background:var(--green-soft);}
+  @keyframes pulseWarn{0%,100%{transform:none;}50%{transform:scale(1.08);}}
+
+  .screen{display:none;animation:pop .25s ease both;}
+  .screen.active{display:block;}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.99);}to{opacity:1;transform:none;}}
+
+  .card{
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r);
+    box-shadow:var(--shadow);padding:clamp(14px,2vw,26px);margin-bottom:16px;
+  }
+  .card-title{font-family:"Russo One",sans-serif;font-size:clamp(22px,3.4vw,40px);margin:0 0 2px;line-height:1.05;text-align:center;}
+  .card-title .ru{display:block;font-family:"Nunito",sans-serif;font-size:clamp(13px,1.7vw,20px);color:var(--blue-d);font-weight:800;margin-top:2px;}
+  .section-h{font-family:"Russo One",sans-serif;font-size:clamp(16px,2vw,23px);margin:0 0 4px;}
+  .section-h .ru{display:block;font-family:"Nunito",sans-serif;font-size:.68em;color:var(--blue-d);font-weight:800;}
+
+  .btn{
+    font-family:"Russo One",sans-serif;border:4px solid var(--ink);border-radius:999px;cursor:pointer;
+    padding:14px 26px;font-size:clamp(16px,2.1vw,24px);background:var(--yellow);color:var(--ink);
+    box-shadow:0 6px 0 rgba(22,22,46,.35);transition:transform .08s ease,filter .15s ease;line-height:1.1;text-align:center;
+  }
+  .btn .ru{display:block;font-family:"Nunito",sans-serif;font-size:.55em;font-weight:800;color:var(--blue-d);margin-top:3px;}
+  .btn:hover{filter:brightness(1.05);transform:translateY(-2px);}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(22,22,46,.35);}
+  .btn.blue{background:var(--blue);color:#fff;} .btn.blue .ru{color:#ffe9a8;}
+  .btn.green{background:var(--green);color:#fff;} .btn.green .ru{color:#d9ffe9;}
+  .btn.red{background:var(--red);color:#fff;} .btn.red .ru{color:#ffd9dd;}
+  .btn.ghost{background:#fff;}
+  .btn:disabled{background:#e4e4ee;color:#9a9ab0;cursor:not-allowed;box-shadow:0 4px 0 rgba(22,22,46,.15);transform:none;}
+  .btn:disabled .ru{color:#9a9ab0;}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+  :focus-visible{outline:5px dashed var(--blue);outline-offset:3px;}
+
+  .teacher-strip{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;
+    background:#eaf1ff;border:3px dashed var(--blue);border-radius:18px;padding:10px 14px;margin-bottom:16px;
+    font-weight:800;font-size:clamp(13px,1.6vw,18px);
+  }
+  .teacher-strip .ru{font-size:.8em;color:var(--blue-d);font-weight:700;}
+  .stepper{display:flex;align-items:center;gap:6px;}
+  .stepper button{
+    width:44px;height:44px;border-radius:14px;border:3px solid var(--ink);background:#fff;font-size:22px;font-weight:900;cursor:pointer;
+    box-shadow:0 3px 0 rgba(22,22,46,.25);
+  }
+  .stepper button:active{transform:translateY(2px);box-shadow:none;}
+  .stepper .num{min-width:52px;text-align:center;font-family:"Russo One",sans-serif;font-size:24px;}
+
+  .setup-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+  @media(min-width:900px){.setup-grid{grid-template-columns:1.05fr .95fr;}}
+  label.fld{display:block;font-weight:900;font-size:clamp(15px,1.9vw,21px);margin-bottom:6px;}
+  label.fld .ru{display:block;font-size:.7em;color:var(--blue-d);font-weight:700;}
+  input[type=text]{
+    width:100%;padding:14px 16px;font-size:clamp(18px,2.4vw,26px);font-weight:800;font-family:inherit;color:var(--ink);
+    border:4px solid var(--ink);border-radius:16px;background:#fff;box-shadow:inset 0 3px 0 rgba(22,22,46,.08);
+  }
+  input[type=text]:focus{border-color:var(--blue);outline:4px solid rgba(31,111,235,.25);}
+  .avatars{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;margin-top:8px;}
+  .avatar{
+    border:4px solid var(--ink);border-radius:20px;background:#fff;cursor:pointer;padding:10px 6px;text-align:center;
+    box-shadow:0 5px 0 rgba(22,22,46,.22);transition:transform .1s ease,background .15s ease;
+  }
+  .avatar:hover{transform:translateY(-3px);}
+  .avatar .emo{width:56px;height:56px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;font-size:30px;border:3px solid var(--ink);}
+  .avatar .nm{font-weight:900;font-size:13px;line-height:1.15;}
+  .avatar .ru{font-size:11px;color:var(--blue-d);font-weight:700;line-height:1.15;}
+  .avatar[aria-pressed="true"]{background:var(--yellow);transform:translateY(-3px) scale(1.03);box-shadow:0 0 0 5px var(--blue),0 6px 0 rgba(22,22,46,.25);}
+  .shake{animation:shake .35s ease;}
+  @keyframes shake{0%,100%{transform:none;}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  .instr{
+    background:#fff8dc;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;font-weight:800;
+    font-size:clamp(14px,1.8vw,20px);text-align:center;
+  }
+  .instr .ru{display:block;font-size:.78em;color:#6b5b00;font-weight:700;margin-top:3px;}
+
+  .timer-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;}
+  .timer-time{font-family:"Russo One",sans-serif;font-size:clamp(30px,5vw,56px);line-height:1;color:var(--blue-d);}
+  .timer-bar{flex:1 1 200px;min-width:160px;height:24px;border:3px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden;}
+  .timer-fill{height:100%;width:100%;background:repeating-linear-gradient(45deg,var(--yellow) 0 12px,#ffc300 12px 24px);transition:width .3s linear;}
+  .timer-lbl{font-weight:800;font-size:14px;text-align:center;width:100%;color:var(--blue-d);}
+
+  .grid{display:flex;flex-direction:column;gap:clamp(6px,1vw,12px);}
+  .grid-row{display:flex;gap:clamp(6px,1vw,12px);justify-content:center;}
+  .letter{
+    flex:1 1 0;min-width:0;aspect-ratio:1/1;max-height:118px;
+    border:4px solid var(--ink);border-radius:18px;background:#fff;cursor:pointer;position:relative;
+    font-family:"Russo One",sans-serif;font-size:clamp(26px,4.6vw,56px);color:var(--ink);
+    box-shadow:0 5px 0 rgba(22,22,46,.28);display:grid;place-items:center;
+    transition:transform .07s ease,background .12s ease;
+  }
+  .letter:hover{background:var(--yellow-soft);transform:translateY(-2px);}
+  .letter:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(22,22,46,.28);}
+  .letter.heard{background:#eaf7ff;box-shadow:0 5px 0 rgba(22,22,46,.28),0 0 0 4px rgba(31,111,235,.35);}
+  .letter.heard::after{
+    content:"";position:absolute;top:7px;right:7px;width:12px;height:12px;border-radius:50%;
+    background:var(--blue);border:2px solid var(--ink);
+  }
+  .letter.hintrow{background:var(--yellow-soft);border-color:var(--amber);animation:hintPulse .7s ease-in-out 2;}
+  @keyframes hintPulse{0%,100%{transform:none;}50%{transform:scale(1.05);}}
+  .letter.ok{background:var(--green)!important;color:#fff;border-color:var(--ink);animation:okPop .25s ease;}
+  .letter.ok::before{content:"✓";position:absolute;top:2px;left:6px;font-size:.42em;color:#fff;}
+  @keyframes okPop{0%{transform:scale(1);}50%{transform:scale(1.14);}100%{transform:scale(1);}}
+  .letter.bad{background:var(--red)!important;color:#fff;animation:badShake .25s ease;}
+  .letter.bad::before{content:"✕";position:absolute;top:2px;left:6px;font-size:.42em;color:#fff;}
+  @keyframes badShake{0%,100%{transform:none;}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+  .letter.missed{background:var(--amber)!important;color:#fff;animation:badShake .25s ease;}
+  .grid.locked .letter{pointer-events:none;}
+  .grid.locked .letter:not(.ok):not(.bad):not(.missed){opacity:.72;}
+
+  .quiz-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center;}
+  .ring-wrap{position:relative;width:clamp(84px,11vw,124px);height:clamp(84px,11vw,124px);flex:0 0 auto;}
+  .ring{width:100%;height:100%;transform:rotate(-90deg);}
+  .ring circle{fill:none;stroke-width:12;stroke-linecap:round;}
+  .ring .bg{stroke:#e3e3ee;}
+  .ring .fg{stroke:var(--blue);transition:stroke-dashoffset .1s linear,stroke .3s ease;}
+  .ring.low .fg{stroke:var(--amber);}
+  .ring-num{position:absolute;inset:0;display:grid;place-items:center;font-family:"Russo One",sans-serif;font-size:clamp(22px,3vw,34px);}
+  .progress-txt{text-align:center;}
+  .progress-txt .en{font-family:"Russo One",sans-serif;font-size:clamp(20px,3vw,34px);line-height:1.05;}
+  .progress-txt .ru{font-size:clamp(12px,1.6vw,18px);color:var(--blue-d);font-weight:800;}
+  .overall-bar{flex:1 1 260px;min-width:200px;height:26px;border:3px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden;}
+  .overall-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),#7ee08a);transition:width .3s ease;}
+  .speaker{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-weight:900;font-size:clamp(14px,1.9vw,20px);}
+  .speaker .big{font-size:1.5em;animation:beat .8s ease-in-out infinite;}
+  @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+
+  .hero-banner{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;}
+  .hero-medal{
+    width:clamp(86px,12vw,130px);height:clamp(86px,12vw,130px);border-radius:50%;border:5px solid var(--ink);
+    display:grid;place-items:center;font-size:clamp(40px,6vw,64px);box-shadow:0 0 0 8px var(--yellow),var(--shadow);
+  }
+  .hero-name{font-family:"Russo One",sans-serif;font-size:clamp(22px,3.4vw,40px);margin:0;line-height:1.1;}
+  .badge{
+    display:inline-block;margin-top:6px;background:var(--purple);color:#fff;border:3px solid var(--ink);
+    border-radius:999px;padding:5px 16px;font-weight:900;font-size:clamp(13px,1.7vw,18px);box-shadow:0 3px 0 rgba(22,22,46,.3);
+  }
+  .badge .ru{font-size:.8em;color:#f0d9ff;}
+  .score-big{font-family:"Russo One",sans-serif;font-size:clamp(34px,6vw,68px);text-align:center;margin:6px 0 0;color:var(--blue-d);line-height:1;}
+  .score-txt{text-align:center;font-weight:900;font-size:clamp(15px,2vw,22px);margin:6px 0 0;}
+  .score-txt .ru{display:block;font-size:.78em;color:var(--blue-d);font-weight:700;}
+  .stars{text-align:center;font-size:clamp(26px,4vw,44px);letter-spacing:6px;color:var(--yellow);text-shadow:2px 2px 0 var(--ink);margin:6px 0;}
+  .feedback{
+    text-align:center;background:var(--green-soft);border:3px solid var(--green);border-radius:16px;
+    padding:12px 16px;font-weight:900;font-size:clamp(15px,2.1vw,23px);
+  }
+  .feedback .ru{display:block;font-size:.75em;color:#0a6b36;font-weight:700;margin-top:3px;}
+  .groups{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media(min-width:760px){.groups{grid-template-columns:repeat(3,1fr);}}
+  .group{border:3px solid var(--ink);border-radius:18px;padding:12px;background:#fff;}
+  .group h3{margin:0 0 2px;font-family:"Russo One",sans-serif;font-size:clamp(15px,2vw,22px);}
+  .group .ru{font-size:.72em;color:var(--blue-d);font-weight:800;display:block;margin-bottom:8px;}
+  .group.g-ok{background:var(--green-soft);} .group.g-bad{background:var(--red-soft);} .group.g-miss{background:var(--amber-soft);}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    width:56px;height:56px;border:3px solid var(--ink);border-radius:14px;background:#fff;cursor:pointer;
+    font-family:"Russo One",sans-serif;font-size:26px;display:grid;place-items:center;box-shadow:0 4px 0 rgba(22,22,46,.25);
+  }
+  .chip:active{transform:translateY(3px);box-shadow:none;}
+  .chip.ok{background:var(--green);color:#fff;}
+  .chip.bad{background:var(--red);color:#fff;}
+  .chip.miss{background:var(--amber);color:#fff;}
+  .chip.none{width:auto;height:auto;padding:8px 14px;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;cursor:default;background:#f2f2f7;box-shadow:none;}
+  .legend{font-size:13px;font-weight:800;color:var(--blue-d);text-align:center;margin-top:8px;}
+
+  .students{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
+  .student-card{border:4px solid var(--ink);border-radius:18px;background:#fff;padding:12px;text-align:center;box-shadow:var(--shadow);}
+  .student-card .emo{width:56px;height:56px;margin:0 auto 6px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font-size:30px;}
+  .student-card .nm{font-family:"Russo One",sans-serif;font-size:18px;}
+  .student-card .sc{font-size:26px;font-weight:900;color:var(--blue-d);font-family:"Russo One",sans-serif;}
+  .student-card .left{font-size:13px;font-weight:800;color:var(--grey);}
+  .student-card .bg-badge{display:inline-block;margin-top:6px;background:var(--yellow);border:2px solid var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:900;}
+  .report-block{border:3px solid var(--ink);border-radius:18px;padding:14px;background:#fff;margin-bottom:14px;}
+  .report-block.know{background:var(--green-soft);}
+  .report-block.unknown{background:var(--red-soft);}
+  .report-block.tricky{background:var(--amber-soft);}
+  .summary{background:var(--ink);color:#fff;border-radius:18px;padding:16px;text-align:center;font-weight:900;font-size:clamp(15px,2vw,22px);}
+  .summary .ru{display:block;font-size:.72em;color:#ffd60a;font-weight:700;}
+
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,140%);z-index:60;
+    background:var(--ink);color:#fff;border:3px solid var(--yellow);border-radius:18px;
+    padding:12px 20px;font-weight:800;font-size:clamp(14px,1.8vw,18px);max-width:92vw;text-align:center;
+    transition:transform .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  #toast.show{transform:translate(-50%,0);}
+  #toast .ru{display:block;font-size:.8em;color:var(--yellow);font-weight:700;}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,10,30,.6);z-index:50;display:none;align-items:center;justify-content:center;padding:16px;}
+  .modal-bg.open{display:flex;}
+  .modal{
+    background:var(--paper);border:4px solid var(--ink);border-radius:var(--r);box-shadow:0 12px 0 rgba(0,0,0,.25);
+    max-width:600px;width:100%;max-height:92vh;overflow:auto;padding:18px;
+  }
+  .modal h2{font-family:"Russo One",sans-serif;margin:0 0 4px;font-size:24px;}
+  .modal h2 .ru{display:block;font-family:"Nunito",sans-serif;font-size:14px;color:var(--blue-d);font-weight:800;}
+  .set-row{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 0;border-bottom:2px dashed #dcdcea;flex-wrap:wrap;}
+  .set-row .lbl{font-weight:900;font-size:15px;}
+  .set-row .lbl .ru{display:block;font-size:12px;color:var(--blue-d);font-weight:700;}
+  .set-row input[type=number]{width:96px;padding:8px;font-size:18px;font-weight:800;border:3px solid var(--ink);border-radius:12px;text-align:center;}
+  .set-row input[type=text]{width:100%;padding:9px 12px;font-size:15px;border:3px solid var(--ink);border-radius:12px;}
+  .switch{width:60px;height:34px;border-radius:999px;border:3px solid var(--ink);background:#e4e4ee;position:relative;cursor:pointer;padding:0;}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:left .15s ease;}
+  .switch[aria-pressed="true"]{background:var(--green);}
+  .switch[aria-pressed="true"]::after{left:30px;}
+  .audio-status{font-size:13px;font-weight:800;margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef;word-break:break-all;}
+  .audio-status.bad{background:var(--amber-soft);color:#7a4b00;}
+  .audio-status.good{background:var(--green-soft);color:#0a6b36;}
+  .mini-note{font-size:12px;font-weight:700;color:var(--grey);margin-top:4px;line-height:1.35;}
+  .confetti{position:fixed;top:-20px;font-size:26px;z-index:55;pointer-events:none;animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.2;}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-badge" aria-hidden="true">⚡</div>
+      <div>
+        <h1>ABC Hero Training</h1>
+        <div class="ru">Тренировка героя</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="counter-chip" id="counterChip">Completed: 0 / 1<small>Завершили: 0 из 1</small></div>
+      <button class="icon-btn" id="audioBtn" title="Audio status / Статус аудио" aria-label="Audio status / Статус аудио">🔊</button>
+      <button class="icon-btn" id="settingsBtn" aria-label="Teacher settings / Настройки учителя">⚙️</button>
+    </div>
+  </header>
+
+  <!-- ============ SCREEN 1 : HERO TRAINING ============ -->
+  <section class="screen active" id="screenTrain" aria-labelledby="trainTitle">
+    <div class="teacher-strip">
+      <span>👩‍🏫 How many heroes? <span class="ru">Сколько героев?</span></span>
+      <span class="stepper">
+        <button type="button" id="minusHero" aria-label="One hero less">−</button>
+        <span class="num" id="heroCount">1</span>
+        <button type="button" id="plusHero" aria-label="One hero more">+</button>
+      </span>
+      <button class="btn ghost" style="padding:8px 16px;font-size:14px" id="assembleTop" hidden>Assemble Results<span class="ru">Герои, общий сбор!</span></button>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title" id="trainTitle">Hero Training<span class="ru">Тренировка героя</span></h2>
+      <p class="instr">Click a letter to hear it. Practise the letters you are not sure about.
+        <span class="ru">Нажми на букву, чтобы услышать её. Повтори буквы, в которых сомневаешься.</span></p>
+    </div>
+
+    <div class="setup-grid">
+      <div class="card">
+        <div id="nameBox">
+          <label class="fld" for="heroName">Hero name <span class="ru">Имя героя</span></label>
+          <input type="text" id="heroName" maxlength="20" autocomplete="off" placeholder="e.g. Super Max" aria-describedby="nameHint" />
+          <div id="nameHint" class="legend" style="text-align:left">A hero alias is enough! / Достаточно имени героя!</div>
+        </div>
+
+        <div style="margin-top:18px" id="avatarBox">
+          <div class="section-h">Choose your hero <span class="ru">Выбери героя</span></div>
+          <div class="avatars" id="avatarList" role="group" aria-label="Hero avatars / Аватары героев"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-h">Revision time <span class="ru">Время на повторение</span></div>
+        <div class="timer-box" style="margin:10px 0 14px">
+          <div class="timer-time" id="revTime">2:00</div>
+          <div class="timer-bar"><div class="timer-fill" id="revFill"></div></div>
+          <div class="timer-lbl">Practise, then start! / Потренируйся и начинай!</div>
+        </div>
+        <div class="section-h">Alphabet <span class="ru">Алфавит</span></div>
+        <div class="grid" id="trainGrid"></div>
+        <div class="legend">🔵 = you heard this letter / 🔵 = ты услышал эту букву</div>
+        <div class="btn-row">
+          <button class="btn green" id="startBtn" disabled>Start Mission<span class="ru">Начать миссию</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 2 : QUIZ ============ -->
+  <section class="screen" id="screenQuiz" aria-labelledby="quizTitle">
+    <div class="card">
+      <h2 class="card-title" id="quizTitle">Letter Mission<span class="ru">Буквенная миссия</span></h2>
+      <div class="quiz-top" style="margin-top:12px">
+        <button class="icon-btn" id="quitBtn" aria-label="Exit mission / Выйти из миссии" title="Exit / Выйти">✖️</button>
+        <div class="ring-wrap">
+          <svg class="ring" id="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="bg" cx="60" cy="60" r="52"></circle>
+            <circle class="fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="ring-num" id="ringNum">8</div>
+        </div>
+        <div class="progress-txt">
+          <div class="en" id="letterProgress">Letter 1 of 26</div>
+          <div class="ru" id="letterProgressRu">Буква 1 из 26</div>
+          <div class="speaker" style="margin-top:8px"><span class="big" aria-hidden="true">🔊</span><span>Listen! <span style="opacity:.8">Слушай!</span></span></div>
+        </div>
+        <div class="overall-bar" role="progressbar" aria-label="Mission progress" aria-valuemin="0" aria-valuemax="26" aria-valuenow="0" id="overallBar"><div class="overall-fill" id="overallFill"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid" id="quizGrid"></div>
+      <div class="legend" id="quizHintLegend">💡 Hint: the yellow row has your letter / Подсказка: жёлтый ряд — там твоя буква</div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 3 : RESULT ============ -->
+  <section class="screen" id="screenResult" aria-labelledby="resTitle">
+    <div class="card">
+      <h2 class="card-title" id="resTitle">Your Result<span class="ru">Твой результат</span></h2>
+      <div class="hero-banner" style="margin-top:10px">
+        <div class="hero-medal" id="resMedal">🦸</div>
+        <div>
+          <h3 class="hero-name" id="resName">Hero</h3>
+          <span class="badge" id="resBadge">Super Hero<span class="ru">Супергерой</span></span>
+        </div>
+      </div>
+      <div class="score-big" id="resScore">0/26</div>
+      <div class="stars" id="resStars" aria-hidden="true">★★★★★</div>
+      <p class="score-txt" id="resScoreTxt">You got 0 out of 26 letters correct!<span class="ru">Ты правильно назвал 0 букв из 26!</span></p>
+      <div style="max-width:520px;margin:12px auto 0" class="timer-bar"><div class="overall-fill" id="resFill" style="width:0"></div></div>
+      <p class="score-txt" id="resLeft" style="margin-top:12px">You have 5 letters left to learn<span class="ru">Осталось выучить 5 букв</span></p>
+      <div class="feedback" id="resFeedback" style="max-width:640px;margin:12px auto 0">Great!<span class="ru">Отлично!</span></div>
+    </div>
+
+    <div class="card">
+      <div class="section-h" style="text-align:center">Letters to practise <span class="ru">Буквы для тренировки</span></div>
+      <p class="legend">Click a letter to hear it again / Нажми на букву, чтобы услышать ещё раз</p>
+      <div class="groups">
+        <div class="group g-ok">
+          <h3>Correct <span class="ru">Правильно</span></h3>
+          <div class="chips" id="grpCorrect"></div>
+        </div>
+        <div class="group g-bad">
+          <h3>Misclicked <span class="ru">Ошибка</span></h3>
+          <div class="chips" id="grpMisclicked"></div>
+        </div>
+        <div class="group g-miss">
+          <h3>Missed <span class="ru">Не успел</span></h3>
+          <div class="chips" id="grpMissed"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn blue" id="copyBtn">Copy result for teacher<span class="ru">Скопировать результат для учителя</span></button>
+        <button class="btn green" id="nextHeroBtn">Next Hero<span class="ru">Следующий герой</span></button>
+        <button class="btn red" id="assembleBtn" hidden>Assemble Results<span class="ru">Герои, общий сбор!</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 4 : CLASS REPORT ============ -->
+  <section class="screen" id="screenReport" aria-labelledby="repTitle">
+    <div class="card">
+      <h2 class="card-title" id="repTitle">Mission Report<span class="ru">Отчёт миссии</span></h2>
+      <div class="students" id="repStudents" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <div class="report-block know">
+        <div class="section-h">Letters you ALL know!<span class="ru">Буквы, которые знают все!</span></div>
+        <div class="chips" id="repAll"></div>
+      </div>
+      <div class="report-block unknown">
+        <div class="section-h">Letters nobody knows yet!<span class="ru">Буквы, которые пока никто не знает!</span></div>
+        <div class="chips" id="repNone"></div>
+      </div>
+      <div class="report-block tricky">
+        <div class="section-h">Tricky letters<span class="ru">Хитрые буквы</span></div>
+        <div class="chips" id="repTricky"></div>
+      </div>
+      <div class="summary" id="repSummary">Heroes completed: 0 / 0<span class="ru">Героев завершили: 0 из 0</span></div>
+      <div class="btn-row">
+        <button class="btn blue" id="copyClassBtn">Copy result for teacher<span class="ru">Скопировать результат для учителя</span></button>
+        <button class="btn ghost" id="backTrainBtn">Next Hero<span class="ru">Следующий герой</span></button>
+        <button class="btn red" id="resetClassBtn">New class<span class="ru">Новый класс</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ SETTINGS MODAL (SCREEN 0) ============ -->
+<div class="modal-bg" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="modal">
+    <h2 id="setTitle">Teacher Setup<span class="ru">Настройки учителя</span></h2>
+    <div class="set-row">
+      <span class="lbl">How many heroes?<span class="ru">Сколько героев?</span></span>
+      <input type="number" id="setStudents" min="1" max="60" value="1" aria-label="Expected students" />
+    </div>
+    <div class="set-row">
+      <span class="lbl">Seconds per letter<span class="ru">Секунд на букву</span></span>
+      <input type="number" id="setSeconds" min="3" max="20" value="8" aria-label="Seconds per letter" />
+    </div>
+    <div class="set-row">
+      <span class="lbl">Hint at seconds remaining<span class="ru">Подсказка за секунд</span></span>
+      <input type="number" id="setHint" min="0" max="10" value="4" aria-label="Hint at seconds remaining" />
+    </div>
+    <div class="set-row">
+      <span class="lbl">Revision time (sec)<span class="ru">Время повторения (сек)</span></span>
+      <input type="number" id="setRevision" min="20" max="600" value="120" aria-label="Revision duration seconds" />
+    </div>
+    <div class="set-row">
+      <span class="lbl">Hints enabled<span class="ru">Подсказки включены</span></span>
+      <button class="switch" id="setHints" aria-pressed="true" aria-label="Hints enabled"></button>
+    </div>
+
+    <div class="set-row" style="display:block">
+      <span class="lbl">Audio folder (path to A.mp3 … Z.mp3)<span class="ru">Папка аудио (путь к A.mp3 … Z.mp3)</span></span>
+      <input type="text" id="setAudioPath" value="audio/letters/" aria-label="Audio folder path" style="margin-top:8px" />
+      <div class="mini-note">
+        Relative to this HTML file: <b>audio/letters/</b> &nbsp;•&nbsp; from the server root: <b>/audio/letters/</b> &nbsp;•&nbsp; other folder: <b>../sounds/abc/</b><br>
+        Относительно этого файла: <b>audio/letters/</b>. Без ведущего «/», если игра лежит в подпапке.
+      </div>
+      <div class="btn-row" style="margin-top:10px;justify-content:flex-start">
+        <button class="btn ghost" id="testAudioBtn" style="font-size:15px;padding:9px 18px">🔊 Test sound<span class="ru">Проверить звук</span></button>
+        <button class="btn ghost" id="reloadAudioBtn" style="font-size:15px;padding:9px 18px">↻ Reload audio<span class="ru">Перезагрузить аудио</span></button>
+      </div>
+    </div>
+
+    <div class="audio-status" id="audioStatus">Checking audio… / Проверяем аудио…</div>
+    <div class="btn-row">
+      <button class="btn ghost" id="resetDataBtn" style="font-size:15px;padding:10px 18px">Clear class data<span class="ru">Очистить данные</span></button>
+      <button class="btn green" id="saveSettingsBtn" style="font-size:18px;padding:12px 24px">Save<span class="ru">Сохранить</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================== SETTINGS ============================== */
+const settings = {
+  revisionDurationSeconds: 120,
+  secondsPerLetter: 8,
+  hintAtSecondsRemaining: 4,
+  hintsEnabled: true,
+  feedbackDurationMs: 250,
+  delayBetweenLettersMs: 500,
+  totalLetters: 26,
+  expectedStudents: 1,
+  audioPath: "audio/letters/"      /* relative path -> audio/letters/A.mp3 */
+};
+
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const ROWS = [
+  ["A","B","C","D","E","F","G"],
+  ["H","I","J","K","L","M","N"],
+  ["O","P","Q","R","S","T","U"],
+  ["V","W","X","Y","Z"]
+];
+const AVATARS = [
+  {id:"spider",  en:"Spider Hero",  ru:"Паук-герой",      emo:"🕷️", c:"#ff5a5f"},
+  {id:"bat",     en:"Bat Hero",     ru:"Герой-мышь",      emo:"🦇", c:"#8b7bff"},
+  {id:"wonder",  en:"Wonder Hero",  ru:"Чудо-герой",      emo:"💫", c:"#ffb703"},
+  {id:"iron",    en:"Iron Hero",    ru:"Железный герой",  emo:"🤖", c:"#ff8500"},
+  {id:"star",    en:"Star Hero",    ru:"Звёздный герой",  emo:"🌟", c:"#1f6feb"},
+  {id:"thunder", en:"Thunder Hero", ru:"Гром-герой",      emo:"⚡", c:"#f4a300"},
+  {id:"cape",    en:"Cape Kid",     ru:"Малыш в плаще",   emo:"🦸", c:"#12a150"},
+  {id:"shield",  en:"Shield Hero",  ru:"Герой со щитом",  emo:"🛡️", c:"#3a86ff"}
+];
+const STORE_KEY = "abcHeroTraining.v2";
+
+/* ============================== STATE ============================== */
+let state = { students: [], expectedStudents: 1 };
+let selectedAvatar = null;
+let heardLetters = new Set();
+let currentStudent = null;
+
+/* ============================== HELPERS ============================== */
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+let toastTimer=null;
+function toast(en, ru, ms){
+  const t=$("toast");
+  t.innerHTML = esc(en)+(ru?'<span class="ru">'+esc(ru)+'</span>':"");
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), ms||2200);
+}
+function say(txt){ $("live").textContent = txt; }
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      students: state.students,
+      expectedStudents: state.expectedStudents,
+      settings: {
+        revisionDurationSeconds: settings.revisionDurationSeconds,
+        secondsPerLetter: settings.secondsPerLetter,
+        hintAtSecondsRemaining: settings.hintAtSecondsRemaining,
+        hintsEnabled: settings.hintsEnabled,
+        expectedStudents: settings.expectedStudents,
+        audioPath: settings.audioPath
+      }
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(Array.isArray(d.students)) state.students = d.students;
+    if(d.expectedStudents){ state.expectedStudents = d.expectedStudents; settings.expectedStudents = d.expectedStudents; }
+    if(d.settings) Object.assign(settings, d.settings);
+    if(!settings.audioPath) settings.audioPath = "audio/letters/";
+  }catch(e){}
+}
+
+/* =====================================================================
+   AUDIO  —  relative path with automatic fallbacks.
+   Order tried:  audio/letters/A.mp3  ->  ./audio/letters/A.mp3
+                 -> /audio/letters/A.mp3  -> audio/letters/a.mp3 (lowercase)
+   ===================================================================== */
+const AUD = { els:{}, ready:{}, broken:{}, tried:{}, warned:false, checks:0 };
+let currentAudio = null;
+
+function normaliseBase(p){
+  p = String(p||"").trim().replace(/\\/g,"/");
+  if(p && !/\/$/.test(p)) p += "/";
+  return p;
+}
+function candidates(base){
+  const b = normaliseBase(base);
+  const list = [b];
+  if(b.charAt(0) !== "/" && b.indexOf(":/") < 0 && b.indexOf(":\\") < 0) list.push("./"+b);
+  if(b.charAt(0) !== "/") list.push("/"+b);
+  list.push(b.toLowerCase());
+  /* unique */
+  return list.filter((v,i)=>list.indexOf(v)===i);
+}
+function makeAudio(L, idx, cands){
+  const a = new Audio();
+  a.preload = "auto";
+  a.addEventListener("canplaythrough", ()=>{ AUD.ready[L]=true; delete AUD.broken[L]; updateAudioStatus(); }, {once:true});
+  a.addEventListener("loadeddata", ()=>{ AUD.ready[L]=true; delete AUD.broken[L]; updateAudioStatus(); }, {once:true});
+  a.addEventListener("error", ()=>{
+    if(idx+1 < cands.length){
+      AUD.tried[L] = idx+1;
+      AUD.els[L] = makeAudio(L, idx+1, cands);
+    }else{
+      AUD.broken[L] = true;
+      updateAudioStatus();
+    }
+  });
+  /* set src last so listeners are attached */
+  a.src = cands[idx] + L + ".mp3";
+  try{ a.load(); }catch(e){}
+  return a;
+}
+function buildAllAudio(){
+  stopAudio();
+  AUD.els = {}; AUD.ready = {}; AUD.broken = {}; AUD.tried = {}; AUD.warned = false; AUD.checks = 0;
+  const cands = candidates(settings.audioPath);
+  LETTERS.forEach(L=>{ AUD.tried[L]=0; AUD.els[L] = makeAudio(L, 0, cands); });
+  updateAudioStatus();
+}
+function stopAudio(){
+  if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime = 0; }catch(e){} currentAudio = null; }
+}
+function warnAudio(L){
+  const btn = $("audioBtn");
+  btn.textContent = "🔇"; btn.classList.remove("good"); btn.classList.add("warn");
+  updateAudioStatus();
+  if(AUD.warned) return;
+  AUD.warned = true;
+  toast("No sound for letter "+(L||"")+" — check the audio folder",
+        "Нет звука: проверь папку "+normaliseBase(settings.audioPath), 3600);
+}
+function markAudioGood(){
+  const btn = $("audioBtn");
+  btn.textContent = "🔊"; btn.classList.remove("warn"); btn.classList.add("good");
+}
+function updateAudioStatus(){
+  const el = $("audioStatus");
+  if(!el) return;
+  const ready = LETTERS.filter(L=>AUD.ready[L]).length;
+  const broken = LETTERS.filter(L=>AUD.broken[L]).length;
+  const path = normaliseBase(settings.audioPath);
+  if(broken === 0 && ready > 0){
+    markAudioGood();
+    el.className = "audio-status good";
+    el.textContent = "✔ Audio ready: "+ready+"/26 files found in “"+path+"” (e.g. "+path+"A.mp3) / Аудио готово: "+ready+" из 26.";
+  }else if(broken > 0){
+    el.className = "audio-status bad";
+    el.textContent = "⚠ "+broken+"/26 files not found in “"+path+"”. Tried: "+candidates(settings.audioPath).map(c=>c+"A.mp3").join(" , ")+
+      "\nПроверь путь к папке (например audio/letters/) и имена файлов A.mp3 … Z.mp3. Игра продолжает работать.";
+    $("audioBtn").textContent = "🔇";
+    $("audioBtn").classList.remove("good");
+  }else{
+    el.className = "audio-status";
+    el.textContent = "… loading audio from “"+path+"” (A.mp3 … Z.mp3) / загружаем аудио";
+  }
+}
+function playLetter(L){
+  stopAudio();
+  const a = AUD.els[L];
+  if(!a || AUD.broken[L]){ warnAudio(L); return; }
+  currentAudio = a;
+  try{
+    a.currentTime = 0;
+    const pr = a.play();
+    if(pr && pr.catch) pr.catch(()=>{
+      if(a.error || AUD.broken[L]){ AUD.broken[L]=true; warnAudio(L); }
+      else { markAudioGood(); toast("Tap any letter again to enable sound","Нажми на букву ещё раз, чтобы включить звук",2000); }
+    });
+    if(!a.error) markAudioGood();
+  }catch(e){ warnAudio(L); }
+}
+
+/* short sound effects (WebAudio, no TTS) */
+let actx=null;
+function ctx(){
+  if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(actx && actx.state === "suspended") actx.resume();
+  return actx;
+}
+function beep(freq,start,dur,type,vol){
+  const c=ctx(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type||"sine"; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+  const t0=c.currentTime+start;
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol||0.16,t0+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.start(t0); o.stop(t0+dur+0.05);
+}
+function sndCorrect(){ beep(660,0,.12,"triangle",.16); beep(880,.1,.12,"triangle",.16); beep(1320,.2,.18,"triangle",.13); }
+function sndWrong(){ beep(220,0,.12,"sine",.12); beep(170,.1,.16,"sine",.1); }
+function sndStart(){ beep(523,0,.1,"square",.1); beep(784,.09,.14,"square",.1); }
+function sndWin(){ [523,659,784,1046].forEach((f,i)=>beep(f,i*.11,.2,"triangle",.14)); }
+
+/* ============================== GRIDS ============================== */
+function buildGrid(container, onClick){
+  container.innerHTML = "";
+  ROWS.forEach((row,ri)=>{
+    const rd=document.createElement("div");
+    rd.className="grid-row"; rd.dataset.row=ri;
+    row.forEach(L=>{
+      const b=document.createElement("button");
+      b.type="button"; b.className="letter"; b.textContent=L; b.dataset.letter=L;
+      b.setAttribute("aria-label","Letter "+L+", буква "+L);
+      b.addEventListener("click",()=>onClick(L,b));
+      rd.appendChild(b);
+    });
+    container.appendChild(rd);
+  });
+  attachArrowKeys(container);
+}
+function attachArrowKeys(container){
+  container.addEventListener("keydown", e=>{
+    if(["ArrowRight","ArrowLeft","ArrowDown","ArrowUp"].indexOf(e.key)<0) return;
+    const btns=Array.prototype.slice.call(container.querySelectorAll("button.letter"));
+    const i=btns.indexOf(document.activeElement);
+    if(i<0) return;
+    e.preventDefault();
+    let n=i;
+    if(e.key==="ArrowRight") n=Math.min(btns.length-1,i+1);
+    if(e.key==="ArrowLeft")  n=Math.max(0,i-1);
+    if(e.key==="ArrowDown")  n=Math.min(btns.length-1,i+7);
+    if(e.key==="ArrowUp")    n=Math.max(0,i-7);
+    btns[n].focus();
+  });
+}
+function tileOf(gridId,L){ return document.querySelector("#"+gridId+" .letter[data-letter='"+L+"']"); }
+function rowIndexOf(L){ for(let i=0;i<ROWS.length;i++) if(ROWS[i].indexOf(L)>=0) return i; return -1; }
+
+buildGrid($("trainGrid"), function(L){ ctx(); playLetter(L); heardLetters.add(L);
+  const t=tileOf("trainGrid",L); if(t) t.classList.add("heard"); say("Letter "+L); });
+
+/* ============================== AVATARS ============================== */
+function buildAvatars(){
+  const box=$("avatarList"); box.innerHTML="";
+  AVATARS.forEach(a=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="avatar"; b.dataset.id=a.id;
+    b.setAttribute("aria-pressed","false");
+    b.setAttribute("aria-label",a.en+" / "+a.ru);
+    b.innerHTML='<span class="emo" style="background:'+a.c+'33">'+a.emo+'</span>'+
+                '<span class="nm">'+esc(a.en)+'</span><span class="ru">'+esc(a.ru)+'</span>';
+    b.addEventListener("click",()=>{
+      selectedAvatar=a;
+      box.querySelectorAll(".avatar").forEach(x=>x.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true");
+      ctx(); sndStart(); say(a.en+" selected"); checkStart();
+    });
+    box.appendChild(b);
+  });
+}
+buildAvatars();
+
+/* ============================== TRAINING SCREEN ============================== */
+let revTimer=null, revLeft=settings.revisionDurationSeconds;
+function fmtTime(s){ const m=Math.floor(s/60), r=Math.floor(s%60); return m+":"+String(r).padStart(2,"0"); }
+function renderRevTimer(){
+  $("revTime").textContent = fmtTime(Math.max(0,revLeft));
+  const pct = Math.max(0,Math.min(100,(revLeft/settings.revisionDurationSeconds)*100));
+  $("revFill").style.width = pct+"%";
+}
+function startRevTimer(){
+  clearInterval(revTimer);
+  revLeft=settings.revisionDurationSeconds; renderRevTimer();
+  revTimer=setInterval(()=>{
+    revLeft--; renderRevTimer();
+    if(revLeft<=0){
+      clearInterval(revTimer); revTimer=null;
+      if(canStart()){ startMission(); }
+      else{
+        toast("Add your hero name and pick an avatar!","Напиши имя героя и выбери аватар!",3200);
+        $("nameBox").classList.add("shake"); $("avatarBox").classList.add("shake");
+        setTimeout(()=>{ $("nameBox").classList.remove("shake"); $("avatarBox").classList.remove("shake"); },400);
+        if(!selectedAvatar) $("heroName").focus();
+      }
+    }
+  },1000);
+}
+function canStart(){ return $("heroName").value.trim().length>0 && selectedAvatar!==null; }
+function checkStart(){ $("startBtn").disabled = !canStart(); }
+$("heroName").addEventListener("input",checkStart);
+$("heroName").addEventListener("keydown",e=>{ if(e.key==="Enter"&&canStart()) startMission(); });
+$("startBtn").addEventListener("click",startMission);
+
+function updateCounter(){
+  const done=state.students.length, exp=state.expectedStudents;
+  $("counterChip").innerHTML="Completed: "+done+" / "+exp+"<small>Завершили: "+done+" из "+exp+"</small>";
+  $("heroCount").textContent=exp;
+  $("assembleTop").hidden = !(done>=exp && done>0);
+}
+$("minusHero").addEventListener("click",()=>setExpected(state.expectedStudents-1));
+$("plusHero").addEventListener("click",()=>setExpected(state.expectedStudents+1));
+function setExpected(n){
+  n=Math.max(1,Math.min(60,n|0));
+  state.expectedStudents=n; settings.expectedStudents=n; $("setStudents").value=n;
+  save(); updateCounter();
+}
+
+/* ============================== QUIZ ============================== */
+let quiz=null, letterTimer=null, letterStart=0, letterEnd=0, hintFired=false;
+const RING_C=2*Math.PI*52;
+$("ringFg").setAttribute("stroke-dasharray",RING_C.toFixed(1));
+$("ringFg").setAttribute("stroke-dashoffset","0");
+
+buildGrid($("quizGrid"), function(L){ quizClick(L); });
+
+function startMission(){
+  if(!canStart()) return;
+  clearInterval(revTimer); revTimer=null;
+  ctx(); sndStart();
+  currentStudent={ name:$("heroName").value.trim().slice(0,20), avatar:selectedAvatar, answers:[] };
+  quiz={ order:shuffle(LETTERS), index:0, locked:true };
+  $("quizGrid").classList.add("locked");
+  clearMarks(); showScreen("screenQuiz"); updateQuizHeader();
+  setTimeout(nextLetter,350);
+}
+function clearMarks(){
+  document.querySelectorAll("#quizGrid .letter").forEach(b=>b.classList.remove("ok","bad","missed","hintrow"));
+  $("ring").classList.remove("low");
+}
+function updateQuizHeader(){
+  const i=quiz.index;
+  $("letterProgress").textContent="Letter "+(i+1)+" of "+settings.totalLetters;
+  $("letterProgressRu").textContent="Буква "+(i+1)+" из "+settings.totalLetters;
+  $("overallFill").style.width=((i/settings.totalLetters)*100)+"%";
+  $("overallBar").setAttribute("aria-valuenow",i);
+}
+function nextLetter(){
+  if(!quiz) return;
+  clearMarks();
+  quiz.locked=false;
+  updateQuizHeader();
+  const L=quiz.order[quiz.index];
+  hintFired=false;
+  playLetter(L);
+  say("Letter "+(quiz.index+1)+" of "+settings.totalLetters+". Listen.");
+  letterStart=performance.now();
+  letterEnd=letterStart+settings.secondsPerLetter*1000;
+  const total=settings.secondsPerLetter*1000;
+  $("ringNum").textContent=settings.secondsPerLetter;
+  $("ringFg").setAttribute("stroke-dashoffset","0");
+  clearInterval(letterTimer);
+  letterTimer=setInterval(()=>{
+    const remaining=Math.max(0,letterEnd-performance.now());
+    const frac=remaining/total;
+    $("ringFg").setAttribute("stroke-dashoffset",(RING_C*(1-frac)).toFixed(1));
+    $("ringNum").textContent=Math.ceil(remaining/1000);
+    $("ring").classList.toggle("low", remaining/1000<=settings.hintAtSecondsRemaining);
+    if(settings.hintsEnabled && !hintFired && remaining/1000<=settings.hintAtSecondsRemaining && remaining>0){
+      hintFired=true; showRowHint(L);
+    }
+    if(remaining<=0){ clearInterval(letterTimer); letterTimer=null; handleMissed(); }
+  },60);
+}
+function showRowHint(L){
+  const ri=rowIndexOf(L);
+  document.querySelectorAll("#quizGrid .grid-row").forEach(r=>{
+    if(parseInt(r.dataset.row,10)===ri) r.querySelectorAll(".letter").forEach(b=>b.classList.add("hintrow"));
+  });
+}
+function quizClick(L){
+  if(!quiz||quiz.locked) return;
+  quiz.locked=true;
+  clearInterval(letterTimer); letterTimer=null;
+  const target=quiz.order[quiz.index];
+  const took=Math.round(performance.now()-letterStart);
+  const correct=(L===target);
+  const btnClicked=tileOf("quizGrid",L), btnTarget=tileOf("quizGrid",target);
+  currentStudent.answers.push({letter:target,status:correct?"correct":"misclicked",clickedLetter:L,timeTakenMs:took,hintShown:hintFired});
+  if(correct){
+    btnClicked.classList.remove("hintrow"); btnClicked.classList.add("ok");
+    sndCorrect(); say("Correct!");
+  }else{
+    btnClicked.classList.add("bad");
+    if(btnTarget) setTimeout(()=>btnTarget.classList.add("ok"),90);
+    sndWrong(); say("The letter was "+target);
+  }
+  afterFeedback();
+}
+function handleMissed(){
+  if(!quiz||quiz.locked) return;
+  quiz.locked=true;
+  const target=quiz.order[quiz.index];
+  currentStudent.answers.push({letter:target,status:"missed",clickedLetter:null,timeTakenMs:settings.secondsPerLetter*1000,hintShown:hintFired});
+  const btnTarget=tileOf("quizGrid",target);
+  if(btnTarget) btnTarget.classList.add("missed");
+  sndWrong(); say("Time is up. The letter was "+target);
+  afterFeedback();
+}
+function afterFeedback(){
+  setTimeout(()=>{
+    clearMarks();
+    $("quizGrid").classList.add("locked");
+    setTimeout(()=>{
+      $("quizGrid").classList.remove("locked");
+      quiz.index++;
+      if(quiz.index>=quiz.order.length) finishMission(); else nextLetter();
+    },settings.delayBetweenLettersMs);
+  },settings.feedbackDurationMs);
+}
+$("quitBtn").addEventListener("click",()=>{
+  clearInterval(letterTimer); letterTimer=null; stopAudio();
+  quiz=null; currentStudent=null; showScreen("screenTrain");
+  toast("Mission stopped","Миссия остановлена",1500);
+});
+
+/* ============================== RESULT ============================== */
+function badgeFor(s){
+  if(s===26) return {en:"Alphabet Master",ru:"Мастер алфавита"};
+  if(s>=20)  return {en:"Super Hero",ru:"Супергерой"};
+  if(s>=14)  return {en:"Rising Hero",ru:"Восходящий герой"};
+  return {en:"Training Hero",ru:"Герой на тренировке"};
+}
+function feedbackFor(s){
+  if(s>=24) return {en:"Amazing! You are an Alphabet Hero!",ru:"Отлично! Ты герой алфавита!"};
+  if(s>=18) return {en:"Great listening! A few letters are still warming up.",ru:"Молодец! Некоторые буквы ещё тренируются."};
+  if(s>=12) return {en:"Good effort! Keep practising your hero letters.",ru:"Хорошая работа! Продолжай тренировать буквы."};
+  return {en:"Nice try! Let's practise these letters together.",ru:"Хорошая попытка! Давай потренируем эти буквы вместе."};
+}
+function chip(L,cls){
+  const b=document.createElement("button");
+  b.type="button"; b.className="chip "+cls; b.textContent=L;
+  b.setAttribute("aria-label","Play letter "+L+" / Прослушать букву "+L);
+  b.addEventListener("click",()=>{ ctx(); playLetter(L); say("Letter "+L); });
+  return b;
+}
+function noneChip(en,ru){
+  const s=document.createElement("span");
+  s.className="chip none";
+  s.innerHTML=esc(en)+'<br><span style="font-size:.85em;color:#666">'+esc(ru)+'</span>';
+  return s;
+}
+let lastResult=null;
+
+function finishMission(){
+  clearInterval(letterTimer); letterTimer=null; stopAudio();
+  const answers=currentStudent.answers;
+  const correct=answers.filter(a=>a.status==="correct").map(a=>a.letter).sort();
+  const misclicked=answers.filter(a=>a.status==="misclicked").map(a=>a.letter).sort();
+  const missed=answers.filter(a=>a.status==="missed").map(a=>a.letter).sort();
+  const score=correct.length, badge=badgeFor(score);
+  const rec={
+    name:currentStudent.name, avatarId:currentStudent.avatar.id,
+    avatarEn:currentStudent.avatar.en, avatarRu:currentStudent.avatar.ru,
+    avatarEmo:currentStudent.avatar.emo, avatarColor:currentStudent.avatar.c,
+    score:score, total:settings.totalLetters,
+    correct:correct, misclicked:misclicked, missed:missed,
+    answers:answers, badge:badge, ts:Date.now()
+  };
+  lastResult=rec;
+  state.students.push(rec);
+  save(); updateCounter();
+
+  $("resMedal").textContent=rec.avatarEmo;
+  $("resMedal").style.background=rec.avatarColor+"22";
+  $("resName").textContent=rec.name+" · "+rec.avatarEn;
+  $("resBadge").innerHTML=esc(badge.en)+'<span class="ru">'+esc(badge.ru)+'</span>';
+  $("resScore").textContent=score+" / "+settings.totalLetters;
+  $("resScoreTxt").innerHTML="You got "+score+" out of "+settings.totalLetters+" letters correct!"+
+    '<span class="ru">Ты правильно назвал '+score+' букв из '+settings.totalLetters+'!</span>';
+  const left=misclicked.length+missed.length;
+  $("resLeft").innerHTML="You have "+left+" letters left to learn<span class='ru'>Осталось выучить "+left+" букв</span>";
+  const fb=feedbackFor(score);
+  $("resFeedback").innerHTML=esc(fb.en)+'<span class="ru">'+esc(fb.ru)+'</span>';
+  const stars=Math.round(score/settings.totalLetters*5);
+  $("resStars").textContent="★".repeat(stars)+"☆".repeat(5-stars);
+  $("resStars").setAttribute("aria-label",stars+" stars of 5");
+  setTimeout(()=>{ $("resFill").style.width=(score/settings.totalLetters*100)+"%"; },120);
+
+  fillGroup($("grpCorrect"),correct,"ok","All correct!","Все верно!");
+  fillGroup($("grpMisclicked"),misclicked,"bad","No misclicks!","Ошибок нет!");
+  fillGroup($("grpMissed"),missed,"miss","No missed letters!","Все буквы услышаны!");
+
+  $("copyBtn").style.display = (state.expectedStudents===1) ? "" : "none";
+  const allDone = state.students.length >= state.expectedStudents;
+  $("assembleBtn").hidden = !allDone;
+  $("nextHeroBtn").innerHTML = allDone ? 'Assemble Results<span class="ru">Герои, общий сбор!</span>' : 'Next Hero<span class="ru">Следующий герой</span>';
+  $("nextHeroBtn").className = "btn "+(allDone?"red":"green");
+
+  showScreen("screenResult");
+  if(score>=18){ celebrate(); sndWin(); } else sndStart();
+  say("Your result: "+score+" of "+settings.totalLetters+" correct. "+badge.en);
+}
+function fillGroup(box,list,cls,en,ru){
+  box.innerHTML="";
+  if(!list.length){ box.appendChild(noneChip(en,ru)); return; }
+  list.forEach(L=>box.appendChild(chip(L,cls)));
+}
+function celebrate(){
+  const emos=["⭐","🎉","⚡","🌟","💥","🦸"];
+  for(let i=0;i<18;i++){
+    const d=document.createElement("div");
+    d.className="confetti"; d.textContent=emos[i%emos.length];
+    d.style.left=(Math.random()*100)+"vw";
+    d.style.animationDuration=(1.6+Math.random()*1.4)+"s";
+    d.style.animationDelay=(Math.random()*.5)+"s";
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),3600);
+  }
+}
+function resultText(r){
+  const practise=r.misclicked.concat(r.missed).sort();
+  return "Hero: "+r.avatarEn+" ("+r.name+")\nScore: "+r.score+"/"+r.total+
+         "\nCorrect: "+(r.correct.join(" ")||"-")+"\nTo practise: "+(practise.join(" ")||"-");
+}
+function copyText(txt,en,ru){
+  const done=()=>toast(en||"Copied!",ru||"Скопировано!",1800);
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>fb());
+  else fb();
+  function fb(){
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=txt; ta.style.position="fixed"; ta.style.left="-9999px";
+      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done();
+    }catch(e){ toast("Copy not available","Копирование недоступно",2000); }
+  }
+}
+$("copyBtn").addEventListener("click",()=>{ if(lastResult) copyText(resultText(lastResult)); });
+$("nextHeroBtn").addEventListener("click",()=>{
+  if(state.students.length>=state.expectedStudents){ openReport(); return; }
+  resetTraining();
+});
+$("assembleBtn").addEventListener("click",openReport);
+$("assembleTop").addEventListener("click",openReport);
+
+function resetTraining(){
+  currentStudent=null; quiz=null; lastResult=null; heardLetters=new Set();
+  $("heroName").value=""; selectedAvatar=null;
+  document.querySelectorAll("#avatarList .avatar").forEach(b=>b.setAttribute("aria-pressed","false"));
+  document.querySelectorAll("#trainGrid .letter").forEach(b=>b.classList.remove("heard","ok","bad"));
+  checkStart(); updateCounter(); showScreen("screenTrain"); startRevTimer(); $("heroName").focus();
+}
+
+/* ============================== CLASS REPORT ============================== */
+function openReport(){
+  const list=state.students, box=$("repStudents"); box.innerHTML="";
+  list.forEach(r=>{
+    const left=r.misclicked.length+r.missed.length;
+    const c=document.createElement("div");
+    c.className="student-card";
+    c.innerHTML='<div class="emo" style="background:'+r.avatarColor+'22">'+r.avatarEmo+'</div>'+
+      '<div class="nm">'+esc(r.avatarEn)+'</div>'+
+      '<div style="font-size:13px;font-weight:800;color:#555">'+esc(r.name)+'</div>'+
+      '<div class="sc">'+r.score+'/'+r.total+'</div>'+
+      '<div class="left">'+left+' letters left · осталось '+left+'</div>'+
+      '<span class="bg-badge">'+esc(r.badge.en)+' · '+esc(r.badge.ru)+'</span>';
+    box.appendChild(c);
+  });
+  const n=list.length, okCount={};
+  LETTERS.forEach(L=>okCount[L]=0);
+  list.forEach(r=>r.correct.forEach(L=>okCount[L]++));
+  const allKnow=LETTERS.filter(L=>n>0&&okCount[L]===n);
+  const noneKnow=LETTERS.filter(L=>okCount[L]===0);
+  const tricky=LETTERS.filter(L=>n>1&&okCount[L]>0&&okCount[L]<n&&(n-okCount[L])>=Math.ceil(n/2));
+  const hardest=LETTERS.slice().sort((a,b)=>(n-okCount[b])-(n-okCount[a])).filter(L=>okCount[L]<n).slice(0,3);
+
+  paintChips($("repAll"),allKnow,"ok","No common letters yet.","Пока нет общих букв.");
+  paintChips($("repNone"),noneKnow,"bad","No mystery letters! Great job!","Секретных букв нет! Отличная работа!");
+  paintChips($("repTricky"),tricky,"miss","No tricky letters!","Хитрых букв нет!");
+  $("repSummary").innerHTML="Heroes completed: "+n+" / "+state.expectedStudents+
+    '<span class="ru">Героев завершили: '+n+' из '+state.expectedStudents+'</span>'+
+    (hardest.length?'<br>Most difficult letters: '+hardest.join(", ")+
+      '<span class="ru">Самые сложные буквы: '+hardest.join(", ")+'</span>':"");
+  showScreen("screenReport"); updateCounter();
+  window._reportText="MISSION REPORT / ОТЧЁТ МИССИИ\nHeroes completed: "+n+" / "+state.expectedStudents+"\n"+
+    list.map(r=>"• "+r.avatarEn+" ("+r.name+"): "+r.score+"/"+r.total+", left to learn: "+(r.misclicked.length+r.missed.length)+" ["+r.badge.en+"]").join("\n")+"\n"+
+    "Letters ALL know: "+(allKnow.join(" ")||"-")+"\nLetters nobody knows: "+(noneKnow.join(" ")||"-")+"\n"+
+    "Tricky letters: "+(tricky.join(" ")||"-")+"\nMost difficult: "+(hardest.join(", ")||"-");
+}
+function paintChips(box,list,cls,en,ru){
+  box.innerHTML="";
+  if(!list.length){ box.appendChild(noneChip(en,ru)); return; }
+  list.forEach(L=>box.appendChild(chip(L,cls)));
+}
+$("copyClassBtn").addEventListener("click",()=>copyText(window._reportText||"No results yet"));
+$("backTrainBtn").addEventListener("click",resetTraining);
+$("resetClassBtn").addEventListener("click",()=>{
+  if(confirm("Start a new class? All saved results will be deleted.\nНачать новый класс? Все результаты будут удалены.")){
+    state.students=[]; save(); updateCounter(); resetTraining(); toast("New class started","Новый класс начат",1600);
+  }
+});
+
+/* ============================== SETTINGS MODAL ============================== */
+const modal=$("settingsModal");
+function openSettings(){
+  $("setStudents").value=state.expectedStudents;
+  $("setSeconds").value=settings.secondsPerLetter;
+  $("setHint").value=settings.hintAtSecondsRemaining;
+  $("setRevision").value=settings.revisionDurationSeconds;
+  $("setHints").setAttribute("aria-pressed",settings.hintsEnabled?"true":"false");
+  $("setAudioPath").value=settings.audioPath;
+  updateAudioStatus();
+  modal.classList.add("open");
+  $("setStudents").focus();
+}
+function closeSettings(){ modal.classList.remove("open"); }
+$("settingsBtn").addEventListener("click",openSettings);
+$("audioBtn").addEventListener("click",openSettings);
+modal.addEventListener("click",e=>{ if(e.target===modal) closeSettings(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&modal.classList.contains("open")) closeSettings(); });
+$("setHints").addEventListener("click",function(){
+  this.setAttribute("aria-pressed", this.getAttribute("aria-pressed")==="true"?"false":"true");
+});
+$("reloadAudioBtn").addEventListener("click",()=>{
+  settings.audioPath = normaliseBase($("setAudioPath").value || "audio/letters/");
+  $("setAudioPath").value = settings.audioPath;
+  buildAllAudio(); save();
+  toast("Reloading audio from "+settings.audioPath,"Перезагружаем аудио",2000);
+});
+$("testAudioBtn").addEventListener("click",()=>{ ctx(); playLetter("A"); say("Test letter A"); });
+$("saveSettingsBtn").addEventListener("click",()=>{
+  const s=Math.max(1,Math.min(60,parseInt($("setStudents").value,10)||1));
+  const sec=Math.max(3,Math.min(20,parseInt($("setSeconds").value,10)||8));
+  const hint=Math.max(0,Math.min(10,parseInt($("setHint").value,10)||0));
+  const rev=Math.max(20,Math.min(600,parseInt($("setRevision").value,10)||120));
+  const newPath=normaliseBase($("setAudioPath").value||"audio/letters/");
+  const pathChanged = newPath !== normaliseBase(settings.audioPath);
+  state.expectedStudents=s; settings.expectedStudents=s;
+  settings.secondsPerLetter=sec; settings.hintAtSecondsRemaining=hint;
+  settings.revisionDurationSeconds=rev;
+  settings.hintsEnabled=$("setHints").getAttribute("aria-pressed")==="true";
+  settings.audioPath=newPath;
+  $("quizHintLegend").style.display=settings.hintsEnabled?"":"none";
+  save(); updateCounter(); closeSettings();
+  if(pathChanged) buildAllAudio();
+  if(!quiz) startRevTimer();
+  toast("Settings saved","Настройки сохранены",1600);
+});
+$("resetDataBtn").addEventListener("click",()=>{
+  if(confirm("Clear all saved class results?\nУдалить все сохранённые результаты?")){
+    state.students=[]; save(); updateCounter(); closeSettings(); resetTraining();
+  }
+});
+
+/* ============================== INIT ============================== */
+load();
+$("setStudents").value=state.expectedStudents;
+$("setAudioPath").value=settings.audioPath;
+$("heroCount").textContent=state.expectedStudents;
+$("quizHintLegend").style.display=settings.hintsEnabled?"":"none";
+buildAllAudio();               /* preload audio/letters/A.mp3 … Z.mp3 */
+updateCounter(); renderRevTimer(); startRevTimer(); checkStart();
+setTimeout(updateAudioStatus,1500);
+
+document.addEventListener("keydown",e=>{
+  if($("screenQuiz").classList.contains("active")&&e.key===" "&&document.activeElement===document.body) e.preventDefault();
+});
+})();
+</script>
+</body>
+</html>
