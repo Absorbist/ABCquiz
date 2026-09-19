@@ -104,7 +104,7 @@
   .btn.green{background:var(--green);color:#fff;} .btn.green .ru{color:#d9ffe9;}
   .btn.red{background:var(--red);color:#fff;} .btn.red .ru{color:#ffd9dd;}
   .btn.ghost{background:#fff;}
-  .btn:disabled{background:#e4e4ee;color:#9a9ab0;cursor:not-allowed;box-shadow:0 4px 0 rgba(22,22,46,.15);transform:none;}
+  .btn:disabled{background:#e4e4ee;color:#9a9ab0;cursor:not-allowed;box-shadow:0 4px 0 rgba(22,22,46,.15);transform:none;filter:none;}
   .btn:disabled .ru{color:#9a9ab0;}
   .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
   :focus-visible{outline:5px dashed var(--blue);outline-offset:3px;}
@@ -198,9 +198,12 @@
   .progress-txt .ru{font-size:clamp(12px,1.6vw,18px);color:var(--blue-d);font-weight:800;}
   .overall-bar{flex:1 1 260px;min-width:200px;height:26px;border:3px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden;}
   .overall-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),#7ee08a);transition:width .3s ease;}
-  .speaker{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-weight:900;font-size:clamp(14px,1.9vw,20px);}
-  .speaker .big{font-size:1.5em;animation:beat .8s ease-in-out infinite;}
-  @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+  .speaker{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:999px;padding:10px 20px;font-weight:900;font-size:clamp(14px,1.9vw,20px);}
+  .speaker .big{font-size:1.5em;}
+  .speaker.playing .big{animation:beat .8s ease-in-out infinite;}
+  .speaker.playing{background:var(--blue-d);}
+  @keyframes beat{0%,100%{transform:scale(1);}50%{transform:scale(1.22);}}
+  #replayBtn{padding:12px 22px;font-size:clamp(15px,2vw,22px);}
 
   .hero-banner{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;}
   .hero-medal{
@@ -279,7 +282,7 @@
   .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--ink);transition:left .15s ease;}
   .switch[aria-pressed="true"]{background:var(--green);}
   .switch[aria-pressed="true"]::after{left:30px;}
-  .audio-status{font-size:13px;font-weight:800;margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef;word-break:break-all;}
+  .audio-status{font-size:13px;font-weight:800;margin-top:10px;padding:10px 12px;border-radius:12px;background:#eef;word-break:break-all;white-space:pre-line;}
   .audio-status.bad{background:var(--amber-soft);color:#7a4b00;}
   .audio-status.good{background:var(--green-soft);color:#0a6b36;}
   .mini-note{font-size:12px;font-weight:700;color:var(--grey);margin-top:4px;line-height:1.35;}
@@ -371,9 +374,16 @@
         <div class="progress-txt">
           <div class="en" id="letterProgress">Letter 1 of 26</div>
           <div class="ru" id="letterProgressRu">Буква 1 из 26</div>
-          <div class="speaker" style="margin-top:8px"><span class="big" aria-hidden="true">🔊</span><span>Listen! <span style="opacity:.8">Слушай!</span></span></div>
+          <div style="margin-top:8px">
+            <span class="speaker" id="speakerBox"><span class="big" aria-hidden="true">🔊</span><span>Listen! <span style="opacity:.8">Слушай!</span></span></span>
+          </div>
         </div>
         <div class="overall-bar" role="progressbar" aria-label="Mission progress" aria-valuemin="0" aria-valuemax="26" aria-valuenow="0" id="overallBar"><div class="overall-fill" id="overallFill"></div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn blue" id="replayBtn" disabled aria-label="Listen again / Послушать ещё раз">
+          🔊 Listen again<span class="ru">Послушать ещё раз</span>
+        </button>
       </div>
     </div>
 
@@ -599,11 +609,10 @@ function load(){
 }
 
 /* =====================================================================
-   AUDIO  —  relative path with automatic fallbacks.
-   Order tried:  audio/letters/A.mp3  ->  ./audio/letters/A.mp3
-                 -> /audio/letters/A.mp3  -> audio/letters/a.mp3 (lowercase)
+   AUDIO — relative path with automatic fallbacks
+   audio/letters/A.mp3 -> ./audio/letters/A.mp3 -> /audio/letters/A.mp3
    ===================================================================== */
-const AUD = { els:{}, ready:{}, broken:{}, tried:{}, warned:false, checks:0 };
+const AUD = { els:{}, ready:{}, broken:{}, tried:{}, warned:false };
 let currentAudio = null;
 
 function normaliseBase(p){
@@ -614,17 +623,16 @@ function normaliseBase(p){
 function candidates(base){
   const b = normaliseBase(base);
   const list = [b];
-  if(b.charAt(0) !== "/" && b.indexOf(":/") < 0 && b.indexOf(":\\") < 0) list.push("./"+b);
+  if(b.charAt(0) !== "/" && b.indexOf(":/") < 0) list.push("./"+b);
   if(b.charAt(0) !== "/") list.push("/"+b);
   list.push(b.toLowerCase());
-  /* unique */
   return list.filter((v,i)=>list.indexOf(v)===i);
 }
 function makeAudio(L, idx, cands){
   const a = new Audio();
   a.preload = "auto";
   a.addEventListener("canplaythrough", ()=>{ AUD.ready[L]=true; delete AUD.broken[L]; updateAudioStatus(); }, {once:true});
-  a.addEventListener("loadeddata", ()=>{ AUD.ready[L]=true; delete AUD.broken[L]; updateAudioStatus(); }, {once:true});
+  a.addEventListener("loadeddata",     ()=>{ AUD.ready[L]=true; delete AUD.broken[L]; updateAudioStatus(); }, {once:true});
   a.addEventListener("error", ()=>{
     if(idx+1 < cands.length){
       AUD.tried[L] = idx+1;
@@ -634,59 +642,57 @@ function makeAudio(L, idx, cands){
       updateAudioStatus();
     }
   });
-  /* set src last so listeners are attached */
   a.src = cands[idx] + L + ".mp3";
   try{ a.load(); }catch(e){}
   return a;
 }
 function buildAllAudio(){
   stopAudio();
-  AUD.els = {}; AUD.ready = {}; AUD.broken = {}; AUD.tried = {}; AUD.warned = false; AUD.checks = 0;
+  AUD.els={}; AUD.ready={}; AUD.broken={}; AUD.tried={}; AUD.warned=false;
   const cands = candidates(settings.audioPath);
-  LETTERS.forEach(L=>{ AUD.tried[L]=0; AUD.els[L] = makeAudio(L, 0, cands); });
+  LETTERS.forEach(L=>{ AUD.tried[L]=0; AUD.els[L]=makeAudio(L,0,cands); });
   updateAudioStatus();
 }
 function stopAudio(){
-  if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime = 0; }catch(e){} currentAudio = null; }
+  if(currentAudio){ try{ currentAudio.pause(); currentAudio.currentTime=0; }catch(e){} currentAudio=null; }
 }
 function warnAudio(L){
-  const btn = $("audioBtn");
-  btn.textContent = "🔇"; btn.classList.remove("good"); btn.classList.add("warn");
+  const btn=$("audioBtn");
+  btn.textContent="🔇"; btn.classList.remove("good"); btn.classList.add("warn");
   updateAudioStatus();
   if(AUD.warned) return;
-  AUD.warned = true;
+  AUD.warned=true;
   toast("No sound for letter "+(L||"")+" — check the audio folder",
         "Нет звука: проверь папку "+normaliseBase(settings.audioPath), 3600);
 }
 function markAudioGood(){
-  const btn = $("audioBtn");
-  btn.textContent = "🔊"; btn.classList.remove("warn"); btn.classList.add("good");
+  const btn=$("audioBtn");
+  btn.textContent="🔊"; btn.classList.remove("warn"); btn.classList.add("good");
 }
 function updateAudioStatus(){
-  const el = $("audioStatus");
-  if(!el) return;
-  const ready = LETTERS.filter(L=>AUD.ready[L]).length;
+  const el=$("audioStatus"); if(!el) return;
+  const ready  = LETTERS.filter(L=>AUD.ready[L]).length;
   const broken = LETTERS.filter(L=>AUD.broken[L]).length;
   const path = normaliseBase(settings.audioPath);
-  if(broken === 0 && ready > 0){
+  if(broken===0 && ready>0){
     markAudioGood();
-    el.className = "audio-status good";
-    el.textContent = "✔ Audio ready: "+ready+"/26 files found in “"+path+"” (e.g. "+path+"A.mp3) / Аудио готово: "+ready+" из 26.";
-  }else if(broken > 0){
-    el.className = "audio-status bad";
-    el.textContent = "⚠ "+broken+"/26 files not found in “"+path+"”. Tried: "+candidates(settings.audioPath).map(c=>c+"A.mp3").join(" , ")+
+    el.className="audio-status good";
+    el.textContent="✔ Audio ready: "+ready+"/26 files found in “"+path+"” (e.g. "+path+"A.mp3)\nАудио готово: "+ready+" из 26.";
+  }else if(broken>0){
+    el.className="audio-status bad";
+    el.textContent="⚠ "+broken+"/26 files not found in “"+path+"”. Tried: "+
+      candidates(settings.audioPath).map(c=>c+"A.mp3").join("  ,  ")+
       "\nПроверь путь к папке (например audio/letters/) и имена файлов A.mp3 … Z.mp3. Игра продолжает работать.";
-    $("audioBtn").textContent = "🔇";
-    $("audioBtn").classList.remove("good");
+    $("audioBtn").textContent="🔇"; $("audioBtn").classList.remove("good");
   }else{
-    el.className = "audio-status";
-    el.textContent = "… loading audio from “"+path+"” (A.mp3 … Z.mp3) / загружаем аудио";
+    el.className="audio-status";
+    el.textContent="… loading audio from “"+path+"” (A.mp3 … Z.mp3)\nзагружаем аудио";
   }
 }
 function playLetter(L){
   stopAudio();
   const a = AUD.els[L];
-  if(!a || AUD.broken[L]){ warnAudio(L); return; }
+  if(!a || AUD.broken[L]){ warnAudio(L); return false; }
   currentAudio = a;
   try{
     a.currentTime = 0;
@@ -696,14 +702,15 @@ function playLetter(L){
       else { markAudioGood(); toast("Tap any letter again to enable sound","Нажми на букву ещё раз, чтобы включить звук",2000); }
     });
     if(!a.error) markAudioGood();
-  }catch(e){ warnAudio(L); }
+    return true;
+  }catch(e){ warnAudio(L); return false; }
 }
 
 /* short sound effects (WebAudio, no TTS) */
 let actx=null;
 function ctx(){
-  if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
-  if(actx && actx.state === "suspended") actx.resume();
+  if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(actx && actx.state==="suspended") actx.resume();
   return actx;
 }
 function beep(freq,start,dur,type,vol){
@@ -721,9 +728,17 @@ function sndWrong(){ beep(220,0,.12,"sine",.12); beep(170,.1,.16,"sine",.1); }
 function sndStart(){ beep(523,0,.1,"square",.1); beep(784,.09,.14,"square",.1); }
 function sndWin(){ [523,659,784,1046].forEach((f,i)=>beep(f,i*.11,.2,"triangle",.14)); }
 
+let speakerTimer=null;
+function pulseSpeaker(){
+  const s=$("speakerBox"); if(!s) return;
+  s.classList.add("playing");
+  clearTimeout(speakerTimer);
+  speakerTimer=setTimeout(()=>s.classList.remove("playing"),1100);
+}
+
 /* ============================== GRIDS ============================== */
 function buildGrid(container, onClick){
-  container.innerHTML = "";
+  container.innerHTML="";
   ROWS.forEach((row,ri)=>{
     const rd=document.createElement("div");
     rd.className="grid-row"; rd.dataset.row=ri;
@@ -784,9 +799,9 @@ buildAvatars();
 let revTimer=null, revLeft=settings.revisionDurationSeconds;
 function fmtTime(s){ const m=Math.floor(s/60), r=Math.floor(s%60); return m+":"+String(r).padStart(2,"0"); }
 function renderRevTimer(){
-  $("revTime").textContent = fmtTime(Math.max(0,revLeft));
-  const pct = Math.max(0,Math.min(100,(revLeft/settings.revisionDurationSeconds)*100));
-  $("revFill").style.width = pct+"%";
+  $("revTime").textContent=fmtTime(Math.max(0,revLeft));
+  const pct=Math.max(0,Math.min(100,(revLeft/settings.revisionDurationSeconds)*100));
+  $("revFill").style.width=pct+"%";
 }
 function startRevTimer(){
   clearInterval(revTimer);
@@ -806,7 +821,7 @@ function startRevTimer(){
   },1000);
 }
 function canStart(){ return $("heroName").value.trim().length>0 && selectedAvatar!==null; }
-function checkStart(){ $("startBtn").disabled = !canStart(); }
+function checkStart(){ $("startBtn").disabled=!canStart(); }
 $("heroName").addEventListener("input",checkStart);
 $("heroName").addEventListener("keydown",e=>{ if(e.key==="Enter"&&canStart()) startMission(); });
 $("startBtn").addEventListener("click",startMission);
@@ -815,7 +830,7 @@ function updateCounter(){
   const done=state.students.length, exp=state.expectedStudents;
   $("counterChip").innerHTML="Completed: "+done+" / "+exp+"<small>Завершили: "+done+" из "+exp+"</small>";
   $("heroCount").textContent=exp;
-  $("assembleTop").hidden = !(done>=exp && done>0);
+  $("assembleTop").hidden=!(done>=exp && done>0);
 }
 $("minusHero").addEventListener("click",()=>setExpected(state.expectedStudents-1));
 $("plusHero").addEventListener("click",()=>setExpected(state.expectedStudents+1));
@@ -826,22 +841,36 @@ function setExpected(n){
 }
 
 /* ============================== QUIZ ============================== */
-let quiz=null, letterTimer=null, letterStart=0, letterEnd=0, hintFired=false;
+let quiz=null, letterTimer=null, letterStart=0, letterEnd=0, hintFired=false, currentTarget=null;
 const RING_C=2*Math.PI*52;
 $("ringFg").setAttribute("stroke-dasharray",RING_C.toFixed(1));
 $("ringFg").setAttribute("stroke-dashoffset","0");
 
 buildGrid($("quizGrid"), function(L){ quizClick(L); });
 
+function setGridLocked(on){
+  $("quizGrid").classList.toggle("locked", !!on);
+  if(quiz) quiz.locked = !!on;
+  setReplayEnabled(!on && !!currentTarget);
+}
+function setReplayEnabled(on){
+  const b=$("replayBtn");
+  b.disabled = !on;
+  b.setAttribute("aria-disabled", (!on).toString());
+}
+
 function startMission(){
   if(!canStart()) return;
   clearInterval(revTimer); revTimer=null;
   ctx(); sndStart();
   currentStudent={ name:$("heroName").value.trim().slice(0,20), avatar:selectedAvatar, answers:[] };
-  quiz={ order:shuffle(LETTERS), index:0, locked:true };
-  $("quizGrid").classList.add("locked");
-  clearMarks(); showScreen("screenQuiz"); updateQuizHeader();
-  setTimeout(nextLetter,350);
+  quiz={ order:shuffle(LETTERS), index:0, locked:true, replays:0 };
+  currentTarget=null;
+  clearMarks();
+  setGridLocked(true);          /* locked only during the short intro pause */
+  showScreen("screenQuiz");
+  updateQuizHeader();
+  setTimeout(nextLetter, 350);
 }
 function clearMarks(){
   document.querySelectorAll("#quizGrid .letter").forEach(b=>b.classList.remove("ok","bad","missed","hintrow"));
@@ -857,11 +886,14 @@ function updateQuizHeader(){
 function nextLetter(){
   if(!quiz) return;
   clearMarks();
-  quiz.locked=false;
   updateQuizHeader();
-  const L=quiz.order[quiz.index];
-  hintFired=false;
-  playLetter(L);
+  currentTarget = quiz.order[quiz.index];
+  quiz.replays = 0;
+  hintFired = false;
+  /* FIX: unlock the grid for EVERY letter, including the first one */
+  setGridLocked(false);
+  pulseSpeaker();
+  playLetter(currentTarget);
   say("Letter "+(quiz.index+1)+" of "+settings.totalLetters+". Listen.");
   letterStart=performance.now();
   letterEnd=letterStart+settings.secondsPerLetter*1000;
@@ -876,7 +908,7 @@ function nextLetter(){
     $("ringNum").textContent=Math.ceil(remaining/1000);
     $("ring").classList.toggle("low", remaining/1000<=settings.hintAtSecondsRemaining);
     if(settings.hintsEnabled && !hintFired && remaining/1000<=settings.hintAtSecondsRemaining && remaining>0){
-      hintFired=true; showRowHint(L);
+      hintFired=true; showRowHint(currentTarget);
     }
     if(remaining<=0){ clearInterval(letterTimer); letterTimer=null; handleMissed(); }
   },60);
@@ -888,48 +920,80 @@ function showRowHint(L){
   });
 }
 function quizClick(L){
-  if(!quiz||quiz.locked) return;
-  quiz.locked=true;
+  if(!quiz || quiz.locked || !currentTarget) return;
+  setGridLocked(true);
   clearInterval(letterTimer); letterTimer=null;
-  const target=quiz.order[quiz.index];
+  const target=currentTarget;
   const took=Math.round(performance.now()-letterStart);
   const correct=(L===target);
   const btnClicked=tileOf("quizGrid",L), btnTarget=tileOf("quizGrid",target);
-  currentStudent.answers.push({letter:target,status:correct?"correct":"misclicked",clickedLetter:L,timeTakenMs:took,hintShown:hintFired});
+  currentStudent.answers.push({
+    letter:target, status:correct?"correct":"misclicked", clickedLetter:L,
+    timeTakenMs:took, hintShown:hintFired, replays:quiz.replays
+  });
   if(correct){
-    btnClicked.classList.remove("hintrow"); btnClicked.classList.add("ok");
+    if(btnClicked){ btnClicked.classList.remove("hintrow"); btnClicked.classList.add("ok"); }
     sndCorrect(); say("Correct!");
   }else{
-    btnClicked.classList.add("bad");
+    if(btnClicked) btnClicked.classList.add("bad");
     if(btnTarget) setTimeout(()=>btnTarget.classList.add("ok"),90);
     sndWrong(); say("The letter was "+target);
   }
   afterFeedback();
 }
 function handleMissed(){
-  if(!quiz||quiz.locked) return;
-  quiz.locked=true;
-  const target=quiz.order[quiz.index];
-  currentStudent.answers.push({letter:target,status:"missed",clickedLetter:null,timeTakenMs:settings.secondsPerLetter*1000,hintShown:hintFired});
+  if(!quiz || quiz.locked || !currentTarget) return;
+  setGridLocked(true);
+  const target=currentTarget;
+  currentStudent.answers.push({
+    letter:target, status:"missed", clickedLetter:null,
+    timeTakenMs:settings.secondsPerLetter*1000, hintShown:hintFired, replays:quiz.replays
+  });
   const btnTarget=tileOf("quizGrid",target);
   if(btnTarget) btnTarget.classList.add("missed");
   sndWrong(); say("Time is up. The letter was "+target);
   afterFeedback();
 }
 function afterFeedback(){
+  setReplayEnabled(false);
+  currentTarget=null;
   setTimeout(()=>{
     clearMarks();
     $("quizGrid").classList.add("locked");
     setTimeout(()=>{
-      $("quizGrid").classList.remove("locked");
       quiz.index++;
       if(quiz.index>=quiz.order.length) finishMission(); else nextLetter();
     },settings.delayBetweenLettersMs);
   },settings.feedbackDurationMs);
 }
+
+/* ---------- LISTEN AGAIN ---------- */
+function replayCurrent(){
+  if(!quiz || quiz.locked || !currentTarget) return;
+  ctx();
+  quiz.replays++;
+  pulseSpeaker();
+  const ok = playLetter(currentTarget);
+  if(ok) say("Letter "+currentTarget+" again");
+  const b=$("replayBtn");
+  b.style.transform="scale(.96)";
+  setTimeout(()=>{ b.style.transform=""; },110);
+}
+$("replayBtn").addEventListener("click", replayCurrent);
+document.addEventListener("keydown", e=>{
+  if(!$("screenQuiz").classList.contains("active")) return;
+  if($("settingsModal").classList.contains("open")) return;
+  const tag = (document.activeElement && document.activeElement.tagName) || "";
+  if((e.key==="r"||e.key==="R"||e.key==="к"||e.key==="К") && tag!=="INPUT"){
+    e.preventDefault(); replayCurrent();
+  }
+});
+
 $("quitBtn").addEventListener("click",()=>{
   clearInterval(letterTimer); letterTimer=null; stopAudio();
-  quiz=null; currentStudent=null; showScreen("screenTrain");
+  quiz=null; currentStudent=null; currentTarget=null;
+  setReplayEnabled(false);
+  showScreen("screenTrain");
   toast("Mission stopped","Миссия остановлена",1500);
 });
 
@@ -950,7 +1014,7 @@ function chip(L,cls){
   const b=document.createElement("button");
   b.type="button"; b.className="chip "+cls; b.textContent=L;
   b.setAttribute("aria-label","Play letter "+L+" / Прослушать букву "+L);
-  b.addEventListener("click",()=>{ ctx(); playLetter(L); say("Letter "+L); });
+  b.addEventListener("click",()=>{ ctx(); playLetter(L); pulseSpeaker(); say("Letter "+L); });
   return b;
 }
 function noneChip(en,ru){
@@ -963,6 +1027,7 @@ let lastResult=null;
 
 function finishMission(){
   clearInterval(letterTimer); letterTimer=null; stopAudio();
+  currentTarget=null; setReplayEnabled(false);
   const answers=currentStudent.answers;
   const correct=answers.filter(a=>a.status==="correct").map(a=>a.letter).sort();
   const misclicked=answers.filter(a=>a.status==="misclicked").map(a=>a.letter).sort();
@@ -1000,11 +1065,11 @@ function finishMission(){
   fillGroup($("grpMisclicked"),misclicked,"bad","No misclicks!","Ошибок нет!");
   fillGroup($("grpMissed"),missed,"miss","No missed letters!","Все буквы услышаны!");
 
-  $("copyBtn").style.display = (state.expectedStudents===1) ? "" : "none";
-  const allDone = state.students.length >= state.expectedStudents;
-  $("assembleBtn").hidden = !allDone;
-  $("nextHeroBtn").innerHTML = allDone ? 'Assemble Results<span class="ru">Герои, общий сбор!</span>' : 'Next Hero<span class="ru">Следующий герой</span>';
-  $("nextHeroBtn").className = "btn "+(allDone?"red":"green");
+  $("copyBtn").style.display=(state.expectedStudents===1)?"":"none";
+  const allDone=state.students.length>=state.expectedStudents;
+  $("assembleBtn").hidden=!allDone;
+  $("nextHeroBtn").innerHTML=allDone?'Assemble Results<span class="ru">Герои, общий сбор!</span>':'Next Hero<span class="ru">Следующий герой</span>';
+  $("nextHeroBtn").className="btn "+(allDone?"red":"green");
 
   showScreen("screenResult");
   if(score>=18){ celebrate(); sndWin(); } else sndStart();
@@ -1053,10 +1118,11 @@ $("assembleBtn").addEventListener("click",openReport);
 $("assembleTop").addEventListener("click",openReport);
 
 function resetTraining(){
-  currentStudent=null; quiz=null; lastResult=null; heardLetters=new Set();
+  currentStudent=null; quiz=null; lastResult=null; currentTarget=null; heardLetters=new Set();
   $("heroName").value=""; selectedAvatar=null;
   document.querySelectorAll("#avatarList .avatar").forEach(b=>b.setAttribute("aria-pressed","false"));
   document.querySelectorAll("#trainGrid .letter").forEach(b=>b.classList.remove("heard","ok","bad"));
+  setReplayEnabled(false);
   checkStart(); updateCounter(); showScreen("screenTrain"); startRevTimer(); $("heroName").focus();
 }
 
@@ -1131,12 +1197,12 @@ $("setHints").addEventListener("click",function(){
   this.setAttribute("aria-pressed", this.getAttribute("aria-pressed")==="true"?"false":"true");
 });
 $("reloadAudioBtn").addEventListener("click",()=>{
-  settings.audioPath = normaliseBase($("setAudioPath").value || "audio/letters/");
-  $("setAudioPath").value = settings.audioPath;
+  settings.audioPath=normaliseBase($("setAudioPath").value||"audio/letters/");
+  $("setAudioPath").value=settings.audioPath;
   buildAllAudio(); save();
   toast("Reloading audio from "+settings.audioPath,"Перезагружаем аудио",2000);
 });
-$("testAudioBtn").addEventListener("click",()=>{ ctx(); playLetter("A"); say("Test letter A"); });
+$("testAudioBtn").addEventListener("click",()=>{ ctx(); playLetter("A"); pulseSpeaker(); say("Test letter A"); });
 $("saveSettingsBtn").addEventListener("click",()=>{
   const s=Math.max(1,Math.min(60,parseInt($("setStudents").value,10)||1));
   const sec=Math.max(3,Math.min(20,parseInt($("setSeconds").value,10)||8));
@@ -1168,6 +1234,7 @@ $("setAudioPath").value=settings.audioPath;
 $("heroCount").textContent=state.expectedStudents;
 $("quizHintLegend").style.display=settings.hintsEnabled?"":"none";
 buildAllAudio();               /* preload audio/letters/A.mp3 … Z.mp3 */
+setReplayEnabled(false);
 updateCounter(); renderRevTimer(); startRevTimer(); checkStart();
 setTimeout(updateAudioStatus,1500);
 
