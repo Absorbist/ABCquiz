@@ -103,9 +103,11 @@
   .btn.blue{background:var(--blue);color:#fff;} .btn.blue .ru{color:#ffe9a8;}
   .btn.green{background:var(--green);color:#fff;} .btn.green .ru{color:#d9ffe9;}
   .btn.red{background:var(--red);color:#fff;} .btn.red .ru{color:#ffd9dd;}
+  .btn.purple{background:var(--purple);color:#fff;} .btn.purple .ru{color:#e6d6ff;}
   .btn.ghost{background:#fff;}
   .btn:disabled{background:#e4e4ee;color:#9a9ab0;cursor:not-allowed;box-shadow:0 4px 0 rgba(22,22,46,.15);transform:none;filter:none;}
   .btn:disabled .ru{color:#9a9ab0;}
+  a.btn{text-decoration:none;display:inline-block;}
   .btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
   :focus-visible{outline:5px dashed var(--blue);outline-offset:3px;}
 
@@ -242,6 +244,21 @@
   .chip.miss{background:var(--amber);color:#fff;}
   .chip.none{width:auto;height:auto;padding:8px 14px;font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;cursor:default;background:#f2f2f7;box-shadow:none;}
   .legend{font-size:13px;font-weight:800;color:var(--blue-d);text-align:center;margin-top:8px;}
+
+  /* bonus mission panel on the result screen */
+  .bonus{
+    margin-top:18px;border:4px dashed var(--purple);border-radius:20px;background:#f6efff;
+    padding:14px;text-align:center;
+  }
+  .bonus .tag{
+    display:inline-block;background:var(--purple);color:#fff;border:3px solid var(--ink);border-radius:999px;
+    padding:3px 14px;font-weight:900;font-size:13px;letter-spacing:.5px;margin-bottom:8px;
+  }
+  .bonus .tag .ru{color:#e6d6ff;font-weight:800;}
+  .bonus .mini{font-size:13px;font-weight:800;color:var(--purple);margin-top:8px;}
+  .bonus .mini .ru{color:#5b3aa0;}
+  #readIBtn{animation:bonusGlow 1.8s ease-in-out 3;}
+  @keyframes bonusGlow{0%,100%{box-shadow:0 6px 0 rgba(22,22,46,.35);}50%{box-shadow:0 6px 0 rgba(22,22,46,.35),0 0 0 10px rgba(124,58,237,.22);}}
 
   .students{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;}
   .student-card{border:4px solid var(--ink);border-radius:18px;background:#fff;padding:12px;text-align:center;box-shadow:var(--shadow);}
@@ -429,6 +446,20 @@
           <div class="chips" id="grpMissed"></div>
         </div>
       </div>
+
+      <!-- ===== BONUS MISSION : READING THE LETTER I ===== -->
+      <div class="bonus">
+        <span class="tag">BONUS MISSION <span class="ru">· БОНУСНАЯ МИССИЯ</span></span>
+        <div class="btn-row" style="margin-top:4px">
+          <a class="btn purple" id="readIBtn" href="read_i.html"
+             aria-label="Learn to read the letter I: kit, kite. Учимся читать букву I: kit, kite.">
+            📖 Read letter I: kit → kite<span class="ru">Учимся читать букву I: kit, kite</span>
+          </a>
+        </div>
+        <div class="mini">Short i (kit, sit, pin) and magic e (kite, site, pine)
+          <span class="ru">Краткий i (kit, sit, pin) и «волшебная» e (kite, site, pine)</span></div>
+      </div>
+
       <div class="btn-row">
         <button class="btn blue" id="copyBtn">Copy result for teacher<span class="ru">Скопировать результат для учителя</span></button>
         <button class="btn green" id="nextHeroBtn">Next Hero<span class="ru">Следующий герой</span></button>
@@ -459,6 +490,7 @@
       </div>
       <div class="summary" id="repSummary">Heroes completed: 0 / 0<span class="ru">Героев завершили: 0 из 0</span></div>
       <div class="btn-row">
+        <a class="btn purple" href="read_i.html" aria-label="Read letter I: kit, kite / Учимся читать букву I">📖 Read letter I: kit → kite<span class="ru">Учимся читать букву I: kit, kite</span></a>
         <button class="btn blue" id="copyClassBtn">Copy result for teacher<span class="ru">Скопировать результат для учителя</span></button>
         <button class="btn ghost" id="backTrainBtn">Next Hero<span class="ru">Следующий герой</span></button>
         <button class="btn red" id="resetClassBtn">New class<span class="ru">Новый класс</span></button>
@@ -530,7 +562,8 @@ const settings = {
   delayBetweenLettersMs: 500,
   totalLetters: 26,
   expectedStudents: 1,
-  audioPath: "audio/letters/"      /* relative path -> audio/letters/A.mp3 */
+  audioPath: "audio/letters/",     /* relative path -> audio/letters/A.mp3 */
+  readingPage: "read_i.html"       /* bonus reading mission */
 };
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -890,7 +923,7 @@ function nextLetter(){
   currentTarget = quiz.order[quiz.index];
   quiz.replays = 0;
   hintFired = false;
-  /* FIX: unlock the grid for EVERY letter, including the first one */
+  /* unlock the grid for EVERY letter, including the first one */
   setGridLocked(false);
   pulseSpeaker();
   playLetter(currentTarget);
@@ -1071,9 +1104,13 @@ function finishMission(){
   $("nextHeroBtn").innerHTML=allDone?'Assemble Results<span class="ru">Герои, общий сбор!</span>':'Next Hero<span class="ru">Следующий герой</span>';
   $("nextHeroBtn").className="btn "+(allDone?"red":"green");
 
+  /* bonus reading link always points to the current reading page */
+  $("readIBtn").setAttribute("href", settings.readingPage);
+
   showScreen("screenResult");
   if(score>=18){ celebrate(); sndWin(); } else sndStart();
-  say("Your result: "+score+" of "+settings.totalLetters+" correct. "+badge.en);
+  say("Your result: "+score+" of "+settings.totalLetters+" correct. "+badge.en+
+      ". Bonus mission: read letter I, kit and kite.");
 }
 function fillGroup(box,list,cls,en,ru){
   box.innerHTML="";
@@ -1116,6 +1153,7 @@ $("nextHeroBtn").addEventListener("click",()=>{
 });
 $("assembleBtn").addEventListener("click",openReport);
 $("assembleTop").addEventListener("click",openReport);
+$("readIBtn").addEventListener("click",()=>{ try{ stopAudio(); }catch(e){} });
 
 function resetTraining(){
   currentStudent=null; quiz=null; lastResult=null; currentTarget=null; heardLetters=new Set();
@@ -1233,6 +1271,7 @@ $("setStudents").value=state.expectedStudents;
 $("setAudioPath").value=settings.audioPath;
 $("heroCount").textContent=state.expectedStudents;
 $("quizHintLegend").style.display=settings.hintsEnabled?"":"none";
+$("readIBtn").setAttribute("href", settings.readingPage);
 buildAllAudio();               /* preload audio/letters/A.mp3 … Z.mp3 */
 setReplayEnabled(false);
 updateCounter(); renderRevTimer(); startRevTimer(); checkStart();
